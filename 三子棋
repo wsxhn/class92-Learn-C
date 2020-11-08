@@ -1,0 +1,180 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define Max_row 3
+#define Max_col 3
+void init(char chessboard[Max_row][Max_col])//把每个元素设置为空格而不是0
+{
+	for (int row = 0; row < Max_row; row++)
+	{
+		for (int col = 0; col < Max_col; col++)
+		{
+			chessboard[row][col] = ' ';
+		}
+	}
+}
+void printchessboard(char chessboard[Max_row][Max_col])//打印棋盘并使其有边框
+{
+	printf("+---+---+---+\n");
+	for (int row = 0; row < Max_row; row++)
+	{
+		printf("| %c | %c | %c |\n", chessboard[row][0], chessboard[row][1], chessboard[row][2]);
+		printf("+---+---+---+\n");
+	}
+	printf("-------------\n");
+}
+void playermove(char chessboard[Max_row][Max_col])
+{
+	while (1)
+	{
+		printf("请玩家输入坐标（row,col):");
+		int row = 0;
+		int col = 0;
+		scanf("%d %d", &row, &col);
+		if (row < 0 || row >= Max_row || col < 0 || col >= Max_col)
+		{
+			printf("您的坐标不在合法范围内\n");
+			continue;
+		}
+		if (chessboard[row][col] != ' ')
+		{
+			printf("该坐标已经有子了！\n");//判断所给坐标处是否能下子
+			continue;
+		}
+		chessboard[row][col] = 'x';
+		break;
+	}
+}
+void computermove(char chessboard[Max_row][Max_col]) {
+	while (1) {
+		int row = rand() % Max_row;
+		int col = rand() % Max_col;
+		if (chessboard[row][col] != ' ') {
+			// 需要保证随机数不能是已经有子的位置. 
+			continue;
+		}
+		chessboard[row][col] = 'o';
+		break;
+	}
+}
+int isfull(char chessboard[Max_row][Max_col])// 找空格
+{
+	for (int row = 0; row < Max_row; row++) 
+	{
+		for (int col = 0; col < Max_col; col++) 
+		{
+			if (chessboard[row][col] == ' ')
+			{
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+// 此处约定返回结果的含义: 
+// 'x' 表示玩家获胜
+// 'o' 表示电脑获胜
+// ' ' 表示胜负未分
+// 'q' 表示和棋
+char iswin(char chessboard[Max_row][Max_col])
+{
+	for (int row = 0; row < Max_row; row++) // 判定所有的行
+	{
+		if (chessboard[row][0] != ' '
+			&& chessboard[row][0] == chessboard[row][1]
+			&& chessboard[row][0] == chessboard[row][2])
+		{
+			return chessboard[row][0];
+		}
+	}
+	for (int col = 0; col < Max_col; col++)// 判定所有的列
+	{
+		if (chessboard[0][col] != ' '
+			&& chessboard[0][col] == chessboard[1][col]
+			&& chessboard[0][col] == chessboard[2][col]) 
+		{
+			return chessboard[0][col];
+		}
+	}
+	if (chessboard[0][0] != ' '// 判定两个对角线
+		&& chessboard[0][0] == chessboard[1][1]
+		&& chessboard[0][0] == chessboard[2][2])
+	{
+		return chessboard[0][0];
+	}
+	if (chessboard[2][0] != ' '
+		&& chessboard[2][0] == chessboard[1][1]
+		&& chessboard[2][0] == chessboard[0][2])
+	{
+		return chessboard[2][0];
+	}
+	// 判定是否和棋
+	// 看棋盘中是否有剩余空间
+	if (isfull(chessboard))
+	{
+		return 'q';
+	}
+	return ' ';
+}
+
+void game()
+{
+	char chessboard[Max_row][Max_col] = { 0 };
+	init(chessboard);
+	char winner = ' ';
+	while (1)
+	{
+		printchessboard(chessboard);
+		playermove(chessboard);
+		winner = iswin(chessboard);
+		if (winner != ' ') 
+		{
+			break;
+		} 
+		computermove(chessboard);
+		winner = iswin(chessboard);
+		if (winner != ' ')
+		{
+			break;
+		}
+	}
+	printchessboard(chessboard);
+	if (winner == 'x') {
+		printf("恭喜您, 您赢了!\n");
+	}
+	else if (winner == 'o')
+	{
+		printf("很遗憾, 您输了!\n");
+	}
+	else {
+		printf("和棋了!\n");
+	}
+}
+int menu()
+{
+	printf("================\n");
+	printf("1.开始游戏\n");
+	printf("0.结束游戏\n");
+	printf("================\n");
+	printf("请输入您的选择：");
+	int choice = 0;
+	scanf("%d", &choice);
+	return choice;
+}
+int main()
+{
+	while (1)
+	{
+		int choice = menu();
+		if (choice == 1)
+		{
+			game();
+		}
+		else if (choice==0)
+		{
+			printf("游戏结束再见！\n");
+			break;
+		}
+	}
+	return 0;
+}
